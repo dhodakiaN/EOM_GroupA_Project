@@ -1,38 +1,49 @@
-from helpers import error_message, clear_screen, forced_input
-from actions import login, create_account
+import socket
+import os
+from tkinter.filedialog import askopenfilename
 
-def launchMenu(connection):
+from helpers import error_message, success_message, clear_screen, forced_input
+from actions import login, create_account, send_file_to_server, download_file_from_server
+
+def launchMenu():
       clear_screen()
       files_list = []
-      email, username = '', ''
-
-      while True:  # Keep running the loop until a break statement is encountered
+      email, username = '1', '1'
+      connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      connection.connect((os.getenv('HOST'), int(os.getenv('PORT'))))
+      email, username = login(connection)
+      while True:
             try:
-                  email, username = login(connection)
+                  connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                  connection.connect((os.getenv('HOST'), int(os.getenv('PORT'))))
                   if bool(username) and bool(email):
                         print(f'Welcome {username} ({email}) to the file sharing system')
                         print('1. Upload File.')
                         print('2. Download File.')
                         print('0. Exit.')
                         option = input('What Would You Like To Do : ')
-                        try:
-                              option = int(option)
-                        except ValueError:  # Catch ValueError when converting input to int
-                              error_message('Invalid Option')
-                              continue  # Continue to the next iteration of the loop
-                        if option not in range(0, 3):
-                              error_message('Invalid Option')
-                              continue  # Continue to the next iteration of the loop
-                        elif option == 0:
+                        if option == '1':
+                              file_path = askopenfilename()
+                              if not file_path:
+                                    error_message('File not selected')
+                                    continue
+
+                              if send_file_to_server(connection, file_path):
+                                    pass
+                                    # success_message('File uploaded successfully')
+                              else:
+                                    continue
+
+                        elif option == '2':
+                              download_file_from_server(connection, 'please-work.txt', './')
+                              pass
+                        elif option == '0':
                               clear_screen()
-                              print('Thanks for using the file sharing system')
-                              break  # Exit the loop
-                        elif option == 1:
-                              pass  # Handle file upload
-                        elif option == 2:
-                              pass  # Handle file download
+                              print('Thank you for using our system')
+                              break
+
                         else:
-                              print('Try again')
+                              error_message('Invalid Option, please try again')
                   else:
                         # Let's create an account
                         print('This is your first time using our system in this device')
@@ -43,6 +54,7 @@ def launchMenu(connection):
                               'email': email,
                               'username': username
                         })
+                  connection.close()
 
 
             except Exception as e:

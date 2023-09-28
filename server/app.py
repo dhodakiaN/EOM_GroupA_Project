@@ -21,13 +21,17 @@ def runServer():
             request = eval(request)
             event = request['event']
             data = request['data']
+
+            print('event', event)
+            print('data', data)
+
             handle_requests(event, connection, data)
             connection.close()
 
     except Exception as e:
         print(e)
         print("Server is not running")
-        exit(0)
+
 
 
 if __name__ == '__main__':

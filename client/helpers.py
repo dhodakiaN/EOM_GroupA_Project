@@ -19,6 +19,12 @@ def error_message(message):
     sleep(3)
     clear_screen()
 
+def success_message(message):
+    clear_screen()
+    print(f'\n\033[1;32m{message}\033[0m\n')
+    sleep(3)
+    clear_screen()
+
 def get_mac_address():
     """
     This function will return the mac address of this device

@@ -34,7 +34,9 @@ def get_files(connection):
     connection.send(str(files).encode('utf-8'))
 
 def upload_file(connection, data):
+    print('Trying to upload a file')
     try:
+        print(data)
         if create_file(data['name'], data['bytes']):
             connection.send('file-uploaded'.encode('utf-8'))
         else:
