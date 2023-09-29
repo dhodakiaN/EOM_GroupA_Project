@@ -1,21 +1,26 @@
 import socket
 import os
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilename, askdirectory
 
-from helpers import error_message, success_message, clear_screen, forced_input
-from actions import login, create_account, send_file_to_server, download_file_from_server
+from helpers import error_message, success_message, clear_screen, forced_input, create_connection
+from actions import login, create_account, send_file_to_server, download_file_from_server, get_files_list
 
 def launchMenu():
       clear_screen()
+      email, username = '', ''
       files_list = []
-      email, username = '1', '1'
-      connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-      connection.connect((os.getenv('HOST'), int(os.getenv('PORT'))))
+
+      connection = create_connection()
       email, username = login(connection)
+      connection.close()
+
+
+
       while True:
             try:
-                  connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                  connection.connect((os.getenv('HOST'), int(os.getenv('PORT'))))
+                  if connection:
+                        connection.close()
+                  connection = create_connection()
                   if bool(username) and bool(email):
                         print(f'Welcome {username} ({email}) to the file sharing system')
                         print('1. Upload File.')
@@ -23,20 +28,51 @@ def launchMenu():
                         print('0. Exit.')
                         option = input('What Would You Like To Do : ')
                         if option == '1':
+
                               file_path = askopenfilename()
                               if not file_path:
                                     error_message('File not selected')
                                     continue
 
                               if send_file_to_server(connection, file_path):
-                                    pass
-                                    # success_message('File uploaded successfully')
+                                    success_message('File uploaded successfully')
                               else:
-                                    continue
+                                    error_message('Error While Uploading File')
 
                         elif option == '2':
-                              download_file_from_server(connection, 'please-work.txt', './')
-                              pass
+                              clear_screen()
+                              files_list = get_files_list(connection)
+
+                              if not files_list:
+                                    error_message('No files found')
+                                    continue
+
+                              for index, file in enumerate(files_list):
+                                    print(f'({index + 1}) {file}')
+                              selected_file_index = int(forced_input('Please enter the file number (enter 0 to cancel) : '))
+                              if selected_file_index == 0:
+                                    continue
+                              if selected_file_index > len(files_list):
+                                    error_message('Invalid file number')
+                                    continue
+
+                              selected_file_name = files_list[selected_file_index - 1]
+                              selected_directory = askdirectory()
+                              if not selected_directory:
+                                    error_message('Directory not selected')
+                                    continue
+
+                              connection.close()
+                              connection = create_connection()
+
+                              if download_file_from_server(connection, selected_file_name, selected_directory):
+                                    success_message('File downloaded successfully')
+                              else:
+                                    pass
+                                    # error_message('Error While Downloading File')
+
+
+
                         elif option == '0':
                               clear_screen()
                               print('Thank you for using our system')
@@ -54,10 +90,11 @@ def launchMenu():
                               'email': email,
                               'username': username
                         })
-                  connection.close()
 
 
             except Exception as e:
                   error_message(str(e))
+                  connection.close()
 
 
+      connection.close()

@@ -18,6 +18,9 @@ def runServer():
             connection, _ = server.accept()
             # 2^16 = 65536
             request = connection.recv(65536).decode('utf-8')
+            if not request:
+                connection.close()
+                continue
             request = eval(request)
             event = request['event']
             data = request['data']

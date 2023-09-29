@@ -1,6 +1,7 @@
 import os
 import uuid
 from time import sleep
+import socket
 
 def forced_input(message):
     while True:
@@ -41,3 +42,7 @@ def to_request(event,data = {}):
         }
     ).encode('utf-8')
 
+def create_connection():
+    connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    connection.connect((os.getenv('HOST'), int(os.getenv('PORT'))))
+    return connection

@@ -32,11 +32,20 @@ def login(connection):
     response = eval(response)
     return response['email'], response['username']
 
+
+def get_files_list(connection):
+    try:
+        connection.send(to_request('get-files', {}))
+        response = connection.recv(1024).decode('utf-8')
+        if response == 'invalid-request':
+            raise Exception('Invalid request')
+        return eval(response)
+    except Exception as e:
+        print(e)
+        return []
+
 def download_file_from_server(connection, file_name, directory_path):
     try:
-        connection.close()
-        connection = socket.socket()
-
         connection.send(
             to_request('download-file', {
                 'name': file_name
@@ -47,20 +56,19 @@ def download_file_from_server(connection, file_name, directory_path):
         response = connection.recv(65536).decode('utf-8')
 
         if response == 'file-not-found':
-            print('File not found')
-            return
+            raise Exception('File not found')
 
         file_path = os.path.join(directory_path, file_name)
         file = open(file_path, 'wb')
         file.write(eval(response))
         file.close()
-        print('File downloaded successfully')
+        return True
     except Exception as e:
         print(e)
         print('File not downloaded')
+        return False
 
 def send_file_to_server(connection, file_path):
-    print(file_path)
     try:
         file = open(file_path, 'rb')
         file_name = os.path.basename(file_path)
@@ -77,5 +85,6 @@ def send_file_to_server(connection, file_path):
     except Exception as e:
         print(e)
         return False
+
 
 
