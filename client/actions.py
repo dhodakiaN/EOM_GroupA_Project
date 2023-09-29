@@ -41,7 +41,7 @@ def login(connection):
 
         if response == 'not-authorized':
             print('Not authorized')
-            return False, response['email'], response['username']
+            return False, '', ''
 
         response = eval(response)  # Evaluating the response string to convert it to a Python object
         return True, response['email'], response['username']
