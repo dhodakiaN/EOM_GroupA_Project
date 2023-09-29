@@ -35,11 +35,20 @@ A Python-based file sharing system that uses sockets to allow users to send and 
 ```
 
 ## 🚀 Usage
-1. Create a `.env` file:
+1. Create a `.env` file,dollow the below instrucitons depending on your operating system:
+
+ If using a Linux/MacOS:
 ```sh
     touch .env
 ```
-1. Add the following environment variables to the `.env` file:
+If using a Windows OS:
+
+```sh
+    New-Item .env -type file
+```
+
+
+2. Add the following environment variables to the `.env` file:
 ```js
     HOST=localhost
     PORT=9999
