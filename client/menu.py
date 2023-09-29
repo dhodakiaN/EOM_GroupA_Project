@@ -13,13 +13,13 @@ def launchMenu():
     Launches the main menu of the application allowing the user to interact with the file sharing system.
     """
     clear_screen()  # Clearing the console screen
-    email, username = '', ''  # Initializing email and username
+    
     files_list = []  # Initializing the list of files
 
     connection = create_connection()  # Creating a new socket connection
     # Logging in and getting email and username
-    if login(connection):
-        email, username = login(connection)
+    authrized, email, username = login(connection)
+        
 
     connection.close()  # Closing the connection after login
 
@@ -28,7 +28,7 @@ def launchMenu():
             if connection:
                 connection.close()  # Closing the connection if it is open
             connection = create_connection()  # Creating a new connection for each iteration
-            if bool(username) and bool(email):  # Checking if user is logged in
+            if authrized:  # Checking if user is logged in
                 print(
                     f'Welcome {username} ({email}) to the file sharing system')
                 print('1. Upload File.')
@@ -96,6 +96,7 @@ def launchMenu():
                     connection, {'email': email, 'username': username})
                 connection.close()  # Closing the connection after account creation
                 clear_screen()
+                authrized = True
 
         except Exception as e:  # Handling any unexpected exceptions
             error_message(str(e))

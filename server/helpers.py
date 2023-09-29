@@ -10,7 +10,7 @@ def load_account():
     """
     try:
         # Opening the accounts.pkl file in binary read mode
-        with open('./server/assets/documents/accounts.pkl', 'rb') as f:
+        with open('server/assets/documents/accounts.pkl', 'rb') as f:
             # Loading and returning the accounts dictionary from the file
             return pickle.load(f)
     except Exception as e:  # Handling any exceptions that occur
@@ -30,7 +30,7 @@ def save_account(account):
         # Updating the accounts dictionary with the given account information
         accounts.update(account)
         # Opening the accounts.pkl file in binary write mode
-        with open('./server/assets/documents/accounts.pkl', 'wb') as f:
+        with open('server/assets/documents/accounts.pkl', 'wb') as f:
             # Dumping the updated account information to the file
             pickle.dump(account, f)
     except Exception as e:  # Handling any exceptions that occur

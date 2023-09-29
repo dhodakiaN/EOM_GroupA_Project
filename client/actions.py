@@ -33,18 +33,23 @@ def login(connection):
     :param connection: The socket connection object.
     :return: A tuple containing 'email' and 'username' if authorized, False otherwise.
     """
-    mac_address = get_mac_address()  # Getting MAC address of the user's machine
-    # Sending a login request with mac_address
-    connection.send(to_request('login', {'mac_address': mac_address}))
-    response = connection.recv(1024).decode('utf-8')  # Receiving and decoding response
+    try :
+        mac_address = get_mac_address()  # Getting MAC address of the user's machine
+        # Sending a login request with mac_address
+        connection.send(to_request('login', {'mac_address': mac_address}))
+        response = connection.recv(1024).decode('utf-8')  # Receiving and decoding response
 
-    if response == 'not-authorized':
-        print('Not authorized')
-        return False
 
-    response = eval(response)  # Evaluating the response string to convert it to a Python object
-    return response['email'], response['username']
+        if response == 'not-authorized':
+            print('Not authorized')
+            return False
 
+        response = eval(response)  # Evaluating the response string to convert it to a Python object
+        return True, response['email'], response['username']
+
+    except Exception as e:
+        print(e)
+        return False, '', ''
 
 def get_files_list(connection):
     """
