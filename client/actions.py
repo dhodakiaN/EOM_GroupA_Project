@@ -1,5 +1,5 @@
 import os  # Importing os module to interact with the OS and file system
-from helpers import clear_screen, forced_input, to_request, get_mac_address  # Importing helper functions
+from helpers import clear_screen, forced_input, to_request, get_mac_address,decrypt_file,load_key  # Importing helper functions
 import socket  # Importing socket module for network connections
 
 
@@ -70,13 +70,14 @@ def get_files_list(connection):
         return []
 
 
-def download_file_from_server(connection, file_name, directory_path):
+def download_file_from_server(connection, file_name, directory_path, decrypt):
     """
     Sends a request to download a file from the server.
 
     :param connection: The socket connection object.
     :param file_name: The name of the file to be downloaded.
     :param directory_path: The path of the directory where the downloaded file will be saved.
+    :param decrypt: A boolean flag to determine if the downloaded file should be decrypted.
     :return: True if file is downloaded successfully, False otherwise.
     """
     try:
@@ -88,9 +89,16 @@ def download_file_from_server(connection, file_name, directory_path):
             raise Exception('File not found')  # Raising exception if file is not found
 
         file_path = os.path.join(directory_path, file_name)  # Creating the full file path
-        file = open(file_path, 'wb')  # Opening the file in binary write mode
-        file.write(eval(response))  # Writing the evaluated response to the file
-        file.close()  # Closing the file
+        with open(file_path, 'wb') as file:  # Using a context manager to handle the file operations
+            file.write(eval(response))  # Writing the evaluated response to the file
+
+        # If the decrypt flag is set to True, decrypt the downloaded file
+        print(decrypt)
+        if decrypt:
+            print("this needs to be decrypted")
+            print(file_path)
+            decrypt_file(file_path)  # Decrypt the downloaded file
+
         return True
     except Exception as e:  # Handling exceptions
         print(e)

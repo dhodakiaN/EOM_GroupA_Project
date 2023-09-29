@@ -4,7 +4,7 @@ import os  # For interacting with the operating system
 from tkinter.filedialog import askopenfilename, askdirectory
 
 # Importing various helper functions and actions
-from helpers import error_message, success_message, clear_screen, forced_input, create_connection
+from helpers import error_message, success_message, clear_screen, forced_input, create_connection,encrypt_file,generate_key,load_key
 from actions import login, create_account, send_file_to_server, download_file_from_server, get_files_list
 
 
@@ -32,7 +32,9 @@ def launchMenu():
                 print(
                     f'Welcome {username} ({email}) to the file sharing system')
                 print('1. Upload File.')
-                print('2. Download File.')
+                print('2. Upload File and Encrypt')
+                print('3. Download File.')
+                print('4. Download File and Decrypt.')
                 print('0. Exit.')
                 option = input('What Would You Like To Do : ')
                 if option == '1':  # Upload File
@@ -45,8 +47,27 @@ def launchMenu():
                         success_message('File uploaded successfully')
                     else:
                         error_message('Error While Uploading File')
+                
+                elif option == '2':  # Upload file and encrypt
+                    file_path = askopenfilename()  # Displaying file selection dialog
+                    if not file_path:
+                        error_message('File not selected')
+                        continue
 
-                elif option == '2':  # Download File
+                    # Encrypt the selected file using the loaded key
+                    encrypted_file_path = encrypt_file(file_path)
+                    
+                    # Attempt to send the encrypted file (with the _encr suffix) to the server
+                    if send_file_to_server(connection, encrypted_file_path):
+                        success_message('File uploaded and encrypted successfully')
+                        
+                        # Delete the _encr file after sending it
+                        os.remove(encrypted_file_path)
+                    else:
+                        error_message('Error While Uploading File')
+
+
+                elif option == '3':  # Download File
                     clear_screen()
                     # Getting the list of available files
                     files_list = get_files_list(connection)
@@ -75,11 +96,49 @@ def launchMenu():
                     connection.close()  # Closing and reopening the connection before downloading the file
                     connection = create_connection()
 
-                    if download_file_from_server(connection, selected_file_name, selected_directory):
+                    if download_file_from_server(connection, selected_file_name, selected_directory,decrypt=False):
                         success_message('File downloaded successfully')
                     else:
                         error_message('Error While Downloading File')
 
+                elif option == '4':  # Download File and decrypt
+                    #clear_screen()
+                    # Getting the list of available files
+                    files_list = get_files_list(connection)
+
+                    if not files_list:
+                        error_message('No files found')
+                        continue
+
+                    # Displaying the list of files
+                    for index, file in enumerate(files_list):
+                        print(f'({index + 1}) {file}')
+                    selected_file_index = int(forced_input(
+                        'Please enter the file number (enter 0 to cancel) : '))
+                    if selected_file_index == 0:
+                        continue
+                    if selected_file_index > len(files_list):
+                        error_message('Invalid file number')
+                        continue
+
+                    selected_file_name = files_list[selected_file_index - 1]
+                    selected_directory = askdirectory()  # Displaying directory selection dialog
+                    if not selected_directory:
+                        error_message('Directory not selected')
+                        continue
+
+                    connection.close()  # Closing and reopening the connection before downloading the file
+                    connection = create_connection()
+
+                    if download_file_from_server(connection, selected_file_name, selected_directory,decrypt=True):
+                        success_message('Decrypted File downloaded successfully')
+                    else:
+                        error_message('Error While Downloading Files')
+                
+                
+                
+                
+                
                 elif option == '0':  # Exit
                     clear_screen()
                     print('Thank you for using our system')
