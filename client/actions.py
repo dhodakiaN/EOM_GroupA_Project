@@ -39,10 +39,9 @@ def login(connection):
         connection.send(to_request('login', {'mac_address': mac_address}))
         response = connection.recv(1024).decode('utf-8')  # Receiving and decoding response
 
-
         if response == 'not-authorized':
             print('Not authorized')
-            return False
+            return False, response['email'], response['username']
 
         response = eval(response)  # Evaluating the response string to convert it to a Python object
         return True, response['email'], response['username']
