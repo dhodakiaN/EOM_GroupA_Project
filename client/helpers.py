@@ -78,3 +78,5 @@ def create_connection():
     # Connecting to the server using the HOST and PORT specified in the environment variables
     connection.connect((os.getenv('HOST'), int(os.getenv('PORT'))))
     return connection
+
+

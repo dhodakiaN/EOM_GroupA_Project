@@ -18,7 +18,9 @@ def launchMenu():
 
     connection = create_connection()  # Creating a new socket connection
     # Logging in and getting email and username
-    email, username = login(connection)
+    if login(connection):
+        email, username = login(connection)
+
     connection.close()  # Closing the connection after login
 
     while True:  # Main loop to keep the menu running

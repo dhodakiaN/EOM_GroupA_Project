@@ -38,7 +38,6 @@ def save_account(account):
         return False  # Returning False in case of an error
     return True  # Returning True if the account is saved successfully
 
-
 def all_files():
     """
     Lists and returns all files in the specified data directory.
