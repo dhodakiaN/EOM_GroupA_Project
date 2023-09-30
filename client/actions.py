@@ -1,5 +1,8 @@
 import os  # Importing os module to interact with the OS and file system
-from helpers import clear_screen, forced_input, to_request, get_mac_address  # Importing helper functions
+import pickle #importing pickle module to pickle 
+import json #import module for json files
+import dicttoxml #import module for xml files
+from helpers import clear_screen, forced_input, to_request, get_mac_address,decrypt_file,load_key  # Importing helper functions
 import socket  # Importing socket module for network connections
 
 
@@ -39,10 +42,9 @@ def login(connection):
         connection.send(to_request('login', {'mac_address': mac_address}))
         response = connection.recv(1024).decode('utf-8')  # Receiving and decoding response
 
-
         if response == 'not-authorized':
             print('Not authorized')
-            return False
+            return False, '', ''
 
         response = eval(response)  # Evaluating the response string to convert it to a Python object
         return True, response['email'], response['username']
@@ -71,13 +73,14 @@ def get_files_list(connection):
         return []
 
 
-def download_file_from_server(connection, file_name, directory_path):
+def download_file_from_server(connection, file_name, directory_path, decrypt):
     """
     Sends a request to download a file from the server.
 
     :param connection: The socket connection object.
     :param file_name: The name of the file to be downloaded.
     :param directory_path: The path of the directory where the downloaded file will be saved.
+    :param decrypt: A boolean flag to determine if the downloaded file should be decrypted.
     :return: True if file is downloaded successfully, False otherwise.
     """
     try:
@@ -89,9 +92,16 @@ def download_file_from_server(connection, file_name, directory_path):
             raise Exception('File not found')  # Raising exception if file is not found
 
         file_path = os.path.join(directory_path, file_name)  # Creating the full file path
-        file = open(file_path, 'wb')  # Opening the file in binary write mode
-        file.write(eval(response))  # Writing the evaluated response to the file
-        file.close()  # Closing the file
+        with open(file_path, 'wb') as file:  # Using a context manager to handle the file operations
+            file.write(eval(response))  # Writing the evaluated response to the file
+
+        # If the decrypt flag is set to True, decrypt the downloaded file
+        print(decrypt)
+        if decrypt:
+            print("this needs to be decrypted")
+            print(file_path)
+            decrypt_file(file_path)  # Decrypt the downloaded file
+
         return True
     except Exception as e:  # Handling exceptions
         print(e)
@@ -124,3 +134,34 @@ def send_file_to_server(connection, file_path):
     except Exception as e:  # Handling exceptions
         print(e)
         return False
+    
+def pickling_Binary(data_dict, filename):
+    directory = './client/assets/'
+    filepath = os.path.join(directory, filename + '.pkl')
+    # Ensure the directory exists
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    with open(filepath, 'wb') as file:
+        pickle.dump(data_dict, file)
+    return filepath
+    
+def pickling_JSON(data_dict, filename):
+    directory = './client/assets/'
+    filepath = os.path.join(directory, filename + '.json')
+    # Ensure the directory exists
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    with open(filepath, 'w') as file:
+        json.dump(data_dict, file)
+    return filepath
+    
+def pickling_XML(data_dict, filename):
+    xml_data = dicttoxml.dicttoxml(data_dict)
+    directory = './client/assets/'
+    # Ensure the directory exists
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    filepath = os.path.join(directory, filename + '.xml')
+    with open(filepath, 'wb') as file:
+        file.write(xml_data)
+    return filepath

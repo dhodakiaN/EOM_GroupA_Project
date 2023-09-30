@@ -2,6 +2,8 @@ import os  # For interacting with the operating system
 import uuid  # For generating unique identifiers
 from time import sleep  # For pausing the execution of the program
 import socket  # For creating network connections
+from cryptography.fernet import Fernet # Import Encryption 
+
 
 def forced_input(message):
     """
@@ -41,10 +43,10 @@ def success_message(message):
 
     :param message: The success message to be displayed.
     """
-    clear_screen()
+    #clear_screen()
     print(f'\n\033[1;32m{message}\033[0m\n')  # \033[1;32m and \033[0m are used to color the text green
     sleep(3)  # Pauses execution for 3 seconds
-    clear_screen()
+    #clear_screen()
 
 
 def get_mac_address():
@@ -80,3 +82,76 @@ def create_connection():
     return connection
 
 
+def generate_key():
+    """
+    Generate a key and save it to a file for later decryption.
+    If the key already exists, it does nothing.
+    """
+    key_path = "./client/assets/key.key"
+    
+    # Check if key file already exists
+    if os.path.exists(key_path):
+        print("Key already exists. No new key was generated.")
+        return
+    
+    key = Fernet.generate_key()
+    with open(key_path, "wb") as key_file:
+        key_file.write(key)
+    print("New key generated and saved.")
+
+def load_key():
+    """
+    Load the previously generated key from the key file.
+    """
+    return open("./client/assets/key.key", "rb").read()
+
+def encrypt_file(file_path):
+    """
+    Encrypt the given file using the provided key and save it as a new encrypted file.
+    
+    Returns the path of the encrypted file.
+    """
+    key = load_key()
+    cipher = Fernet(key)
+
+    # Read the original file
+    with open(file_path, "rb") as file:
+        original_data = file.read()
+
+    # Encrypt the data
+    encrypted_data = cipher.encrypt(original_data)
+
+    # Create a new filename for the encrypted file with the _encr suffix
+    base, extension = os.path.splitext(file_path)
+    encrypted_file_path = f"{base}_encr{extension}"
+
+    # Write the encrypted data to the new file
+    with open(encrypted_file_path, "wb") as file:
+        file.write(encrypted_data)
+
+    print("File encrypted successfully!")
+    
+    return encrypted_file_path  # Return the path of the encrypted file
+
+def decrypt_file(file_path):
+    """
+    Decrypt the given file using the provided key.
+    """
+    key = load_key()
+    cipher = Fernet(key)
+
+    # Read the encrypted file
+    with open(file_path, "rb") as file:
+        encrypted_data = file.read()
+
+    # Decrypt the data
+    decrypted_data = cipher.decrypt(encrypted_data)
+    print("this is encrypted ")
+    print(encrypted_data)
+    print("this is decrypted data")
+    print(decrypted_data)
+    # Write the decrypted data back to the file
+    with open(file_path, "wb") as file:
+        file.write(decrypted_data)
+
+    print("File decrypted successfully!")

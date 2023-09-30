@@ -4,8 +4,8 @@ import os  # For interacting with the operating system
 from tkinter.filedialog import askopenfilename, askdirectory
 
 # Importing various helper functions and actions
-from helpers import error_message, success_message, clear_screen, forced_input, create_connection
-from actions import login, create_account, send_file_to_server, download_file_from_server, get_files_list
+from helpers import error_message, success_message, clear_screen, forced_input, create_connection,encrypt_file,generate_key,load_key
+from actions import login, create_account, send_file_to_server, download_file_from_server, get_files_list,pickling_Binary,pickling_JSON,pickling_XML
 
 
 def launchMenu():
@@ -29,64 +29,167 @@ def launchMenu():
                 connection.close()  # Closing the connection if it is open
             connection = create_connection()  # Creating a new connection for each iteration
             if authrized:  # Checking if user is logged in
-                print(
-                    f'Welcome {username} ({email}) to the file sharing system')
-                print('1. Upload File.')
-                print('2. Download File.')
+                print(f'Welcome {username} ({email}) to groups A system')
+                print('1. Create a dictionary, populate it, serialize it and send it to a server..')
+                print('2. Create a text file and send it to a server')
                 print('0. Exit.')
-                option = input('What Would You Like To Do : ')
-                if option == '1':  # Upload File
-                    file_path = askopenfilename()  # Displaying file selection dialog
-                    if not file_path:
-                        error_message('File not selected')
-                        continue
+                optionsystem = input('What Would You Like To Do from Above Options: ')
+                if optionsystem =="1":
+                    print("This is the dictionary system")
+                    dictkey = input('Can you please populate the key to the dictionary? ')
+                    dictvalues = input('Can you please populate the values to the dictionary? ')
+                    userdictionary={dictkey:dictvalues}
+                    print("This is your dictionary below:")
+                    print(userdictionary)
+                    dictfilename = input('What should we call the file name ')
+                    print("Do you want to encrypt the file before it is sent to a server?")
+                    print('1. Yes')
+                    print('2. No')
+                    optionencrypt = input('What Would You Like To Do from the Above Options: ')
+                    if optionencrypt == "1":
+                        encryptdata=True
+                    elif optionencrypt == "2":
+                        encryptdata=False
+                    print("In what pickling format do you want to serialise the data and then send to server")
+                    print('1. Binary')
+                    print('2. JSON')
+                    print('3. XML')
+                    optionpicklingformat= input('What Would You Like To Do from Above Options: ')
+                    if optionpicklingformat == "1":
+                        file_path = pickling_Binary(userdictionary, dictfilename)
+                        if send_file_to_server(connection, file_path):
+                            success_message('File uploaded successfully')
+                        else:
+                            error_message('Error While Uploading File')
+                    elif optionpicklingformat == "2":
+                        file_path = pickling_JSON(userdictionary, dictfilename)
+                        if send_file_to_server(connection, file_path):
+                            success_message('File uploaded successfully')
+                        else:
+                            error_message('Error While Uploading File')
+                    elif optionpicklingformat == "3":         
+                        file_path = pickling_XML(userdictionary,dictfilename)
+                        if send_file_to_server(connection, file_path):
+                            success_message('File uploaded successfully')
+                        else:
+                            error_message('Error While Uploading File')
+                elif optionsystem == "2":
+                    print('This is the file sharing system')
+                    print('1. Upload File.')
+                    print('2. Upload File and Encrypt')
+                    print('3. Download File.')
+                    print('4. Download File and Decrypt.')
+                    print('0. Exit.')
+                    option = input('What Would You Like To Do from Above Options: ')
+                    if option == '1':  # Upload File
+                        file_path = askopenfilename()  # Displaying file selection dialog
+                        if not file_path:
+                            error_message('File not selected')
+                            continue
+                        if send_file_to_server(connection, file_path):
+                            success_message('File uploaded successfully')
+                        else:
+                            error_message('Error While Uploading File')
+                    
+                    elif option == '2':  # Upload file and encrypt
+                        file_path = askopenfilename()  # Displaying file selection dialog
+                        if not file_path:
+                            error_message('File not selected')
+                            continue
 
-                    if send_file_to_server(connection, file_path):
-                        success_message('File uploaded successfully')
+                        # Encrypt the selected file using the loaded key
+                        encrypted_file_path = encrypt_file(file_path)
+                        
+                        # Attempt to send the encrypted file (with the _encr suffix) to the server
+                        if send_file_to_server(connection, encrypted_file_path):
+                            success_message('File uploaded and encrypted successfully')
+                            
+                            # Delete the _encr file after sending it
+                            os.remove(encrypted_file_path)
+                        else:
+                            error_message('Error While Uploading File')
+
+
+                    elif option == '3':  # Download File
+                        clear_screen()
+                        # Getting the list of available files
+                        files_list = get_files_list(connection)
+
+                        if not files_list:
+                            error_message('No files found')
+                            continue
+
+                        # Displaying the list of files
+                        for index, file in enumerate(files_list):
+                            print(f'({index + 1}) {file}')
+                        selected_file_index = int(forced_input(
+                            'Please enter the file number (enter 0 to cancel) : '))
+                        if selected_file_index == 0:
+                            continue
+                        if selected_file_index > len(files_list):
+                            error_message('Invalid file number')
+                            continue
+
+                        selected_file_name = files_list[selected_file_index - 1]
+                        selected_directory = askdirectory()  # Displaying directory selection dialog
+                        if not selected_directory:
+                            error_message('Directory not selected')
+                            continue
+
+                        connection.close()  # Closing and reopening the connection before downloading the file
+                        connection = create_connection()
+
+                        if download_file_from_server(connection, selected_file_name, selected_directory,decrypt=False):
+                            success_message('File downloaded successfully')
+                        else:
+                            error_message('Error While Downloading File')
+
+                    elif option == '4':  # Download File and decrypt
+                        #clear_screen()
+                        # Getting the list of available files
+                        files_list = get_files_list(connection)
+
+                        if not files_list:
+                            error_message('No files found')
+                            continue
+
+                        # Displaying the list of files
+                        for index, file in enumerate(files_list):
+                            print(f'({index + 1}) {file}')
+                        selected_file_index = int(forced_input(
+                            'Please enter the file number (enter 0 to cancel) : '))
+                        if selected_file_index == 0:
+                            continue
+                        if selected_file_index > len(files_list):
+                            error_message('Invalid file number')
+                            continue
+
+                        selected_file_name = files_list[selected_file_index - 1]
+                        selected_directory = askdirectory()  # Displaying directory selection dialog
+                        if not selected_directory:
+                            error_message('Directory not selected')
+                            continue
+
+                        connection.close()  # Closing and reopening the connection before downloading the file
+                        connection = create_connection()
+
+                        if download_file_from_server(connection, selected_file_name, selected_directory,decrypt=True):
+                            success_message('Decrypted File downloaded successfully')
+                        else:
+                            error_message('Error While Downloading Files')
+                    
+                    elif option == '0':  # Exit
+                        clear_screen()
+                        print('Thank you for using our system')
+                        break  # Exiting the main loop
+
                     else:
-                        error_message('Error While Uploading File')
-
-                elif option == '2':  # Download File
-                    clear_screen()
-                    # Getting the list of available files
-                    files_list = get_files_list(connection)
-
-                    if not files_list:
-                        error_message('No files found')
-                        continue
-
-                    # Displaying the list of files
-                    for index, file in enumerate(files_list):
-                        print(f'({index + 1}) {file}')
-                    selected_file_index = int(forced_input(
-                        'Please enter the file number (enter 0 to cancel) : '))
-                    if selected_file_index == 0:
-                        continue
-                    if selected_file_index > len(files_list):
-                        error_message('Invalid file number')
-                        continue
-
-                    selected_file_name = files_list[selected_file_index - 1]
-                    selected_directory = askdirectory()  # Displaying directory selection dialog
-                    if not selected_directory:
-                        error_message('Directory not selected')
-                        continue
-
-                    connection.close()  # Closing and reopening the connection before downloading the file
-                    connection = create_connection()
-
-                    if download_file_from_server(connection, selected_file_name, selected_directory):
-                        success_message('File downloaded successfully')
-                    else:
-                        error_message('Error While Downloading File')
-
-                elif option == '0':  # Exit
-                    clear_screen()
-                    print('Thank you for using our system')
-                    break  # Exiting the main loop
-
+                        error_message('Invalid Option, please try again')
+                elif optionsystem == "0":
+                    print("Exiting system")
+                    break
                 else:
-                    error_message('Invalid Option, please try again')
+                    print("Unrecognised input exiting")
             else:  # Create an Account
                 print('This is your first time using our system in this device')
                 print('Please Create an account first')
