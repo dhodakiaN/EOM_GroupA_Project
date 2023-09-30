@@ -5,7 +5,7 @@ from tkinter.filedialog import askopenfilename, askdirectory
 
 # Importing various helper functions and actions
 from helpers import error_message, success_message, clear_screen, forced_input, create_connection,encrypt_file,generate_key,load_key
-from actions import login, create_account, send_file_to_server, download_file_from_server, get_files_list
+from actions import login, create_account, send_file_to_server, download_file_from_server, get_files_list,pickling_Binary,pickling_JSON,pickling_XML
 
 
 def launchMenu():
@@ -29,14 +29,54 @@ def launchMenu():
                 connection.close()  # Closing the connection if it is open
             connection = create_connection()  # Creating a new connection for each iteration
             if authrized:  # Checking if user is logged in
-                print(
-                    f'Welcome {username} ({email}) to the file sharing system')
+                print(f'Welcome {username} ({email}) to groups A system')
+                print('1. Create a dictionary, populate it, serialize it and send it to a server..')
+                print('2. Create a text file and send it to a server')
+                optionsystem = input('What Would You Like To Do from Above Options: ')
+                if optionsystem =="1":
+                    print("This is the dictionary system")
+                    dictkey = input('Can you please populate the key to the dictionary? ')
+                    dictvalues = input('Can you please populate the values to the dictionary? ')
+                    userdictionary={dictkey:dictvalues}
+                    print("This is your dictionary below:")
+                    print(userdictionary)
+                    dictfilename = input('What should we call the file name ')
+                    print("Do you want to serialise it before it is sent to a server?")
+                    print('1. Yes')
+                    print('2. No')
+                    optionsystem2 = input('What Would You Like To Do from Above Options: ')
+                    if optionsystem2 == "1":
+                        print("In what pickling format do you want to serialise the data and then send to server")
+                        print('1. Binary')
+                        print('2. JSON')
+                        print('3. CML')
+                        optionpicklingformat= input('What Would You Like To Do from Above Options: ')
+                        if optionpicklingformat == 1:
+                            pickling_Binary(userdictionary, dictfilename)
+                            if send_file_to_server(connection, file_path):
+                                success_message('File uploaded successfully')
+                            else:
+                                error_message('Error While Uploading File')
+                        elif optionpicklingformat == 2:
+                            pickling_JSON(userdictionary, dictfilename)
+                            if send_file_to_server(connection, file_path):
+                                success_message('File uploaded successfully')
+                            else:
+                                error_message('Error While Uploading File')
+                        elif optionpicklingformat == 3:         
+                            pickling_XML(userdictionary,dictfilename)
+                            if send_file_to_server(connection, file_path):
+                                success_message('File uploaded successfully')
+                            else:
+                                error_message('Error While Uploading File')
+
+                print('This is the file sharing system')
                 print('1. Upload File.')
                 print('2. Upload File and Encrypt')
                 print('3. Download File.')
                 print('4. Download File and Decrypt.')
                 print('0. Exit.')
-                option = input('What Would You Like To Do : ')
+                option = input('What Would You Like To Do from Above Options: ')
                 if option == '1':  # Upload File
                     file_path = askopenfilename()  # Displaying file selection dialog
                     if not file_path:

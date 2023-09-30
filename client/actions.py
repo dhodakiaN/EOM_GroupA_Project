@@ -1,4 +1,7 @@
 import os  # Importing os module to interact with the OS and file system
+import pickle #importing pickle module to pickle 
+import json #import module for json files
+import dicttoxml #import module for xml files
 from helpers import clear_screen, forced_input, to_request, get_mac_address,decrypt_file,load_key  # Importing helper functions
 import socket  # Importing socket module for network connections
 
@@ -131,3 +134,16 @@ def send_file_to_server(connection, file_path):
     except Exception as e:  # Handling exceptions
         print(e)
         return False
+    
+def pickling_Binary(data_dict, filename):
+    with open(filename, 'wb') as file:
+        pickle.dump(data_dict, file)
+    
+def pickling_JSON(data_dict, filename):
+    with open(filename, 'w') as file:
+        json.dump(data_dict, file)
+    
+def pickling_XML(data_dict, filename):
+    xml_data = dicttoxml.dicttoxml(data_dict)
+    with open(filename, 'wb') as file:
+        file.write(xml_data)

@@ -1,6 +1,8 @@
 import pickle  # For serializing and deserializing Python object structures
 import os  # For interacting with the operating system
 
+from cryptography.fernet import Fernet
+
 
 def load_account():
     """
@@ -81,3 +83,6 @@ def get_file_bytes(name):
         print(e)  # Printing the exception to the console
         return False  # Returning False in case of an error
     return file_bytes  # Returning the bytes of the file
+
+def encrypt_file():
+    print("yes")
