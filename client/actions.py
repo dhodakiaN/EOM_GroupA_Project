@@ -136,14 +136,32 @@ def send_file_to_server(connection, file_path):
         return False
     
 def pickling_Binary(data_dict, filename):
-    with open(filename, 'wb') as file:
+    directory = './client/assets/'
+    filepath = os.path.join(directory, filename + '.pkl')
+    # Ensure the directory exists
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    with open(filepath, 'wb') as file:
         pickle.dump(data_dict, file)
+    return filepath
     
 def pickling_JSON(data_dict, filename):
-    with open(filename, 'w') as file:
+    directory = './client/assets/'
+    filepath = os.path.join(directory, filename + '.json')
+    # Ensure the directory exists
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    with open(filepath, 'w') as file:
         json.dump(data_dict, file)
+    return filepath
     
 def pickling_XML(data_dict, filename):
     xml_data = dicttoxml.dicttoxml(data_dict)
-    with open(filename, 'wb') as file:
+    directory = './client/assets/'
+    # Ensure the directory exists
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    filepath = os.path.join(directory, filename + '.xml')
+    with open(filepath, 'wb') as file:
         file.write(xml_data)
+    return filepath

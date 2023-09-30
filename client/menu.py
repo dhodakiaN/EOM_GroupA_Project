@@ -49,22 +49,22 @@ def launchMenu():
                         print("In what pickling format do you want to serialise the data and then send to server")
                         print('1. Binary')
                         print('2. JSON')
-                        print('3. CML')
+                        print('3. XML')
                         optionpicklingformat= input('What Would You Like To Do from Above Options: ')
-                        if optionpicklingformat == 1:
-                            pickling_Binary(userdictionary, dictfilename)
+                        if optionpicklingformat == "1":
+                            file_path = pickling_Binary(userdictionary, dictfilename)
                             if send_file_to_server(connection, file_path):
                                 success_message('File uploaded successfully')
                             else:
                                 error_message('Error While Uploading File')
-                        elif optionpicklingformat == 2:
-                            pickling_JSON(userdictionary, dictfilename)
+                        elif optionpicklingformat == "2":
+                            file_path = pickling_JSON(userdictionary, dictfilename)
                             if send_file_to_server(connection, file_path):
                                 success_message('File uploaded successfully')
                             else:
                                 error_message('Error While Uploading File')
-                        elif optionpicklingformat == 3:         
-                            pickling_XML(userdictionary,dictfilename)
+                        elif optionpicklingformat == "3":         
+                            file_path = pickling_XML(userdictionary,dictfilename)
                             if send_file_to_server(connection, file_path):
                                 success_message('File uploaded successfully')
                             else:
@@ -82,7 +82,6 @@ def launchMenu():
                     if not file_path:
                         error_message('File not selected')
                         continue
-
                     if send_file_to_server(connection, file_path):
                         success_message('File uploaded successfully')
                     else:
