@@ -42,34 +42,37 @@ def launchMenu():
                     print("This is your dictionary below:")
                     print(userdictionary)
                     dictfilename = input('What should we call the file name ')
-                    print("Do you want to serialise it before it is sent to a server?")
+                    print("Do you want to encrypt the file before it is sent to a server?")
                     print('1. Yes')
                     print('2. No')
-                    optionsystem2 = input('What Would You Like To Do from Above Options: ')
-                    if optionsystem2 == "1":
-                        print("In what pickling format do you want to serialise the data and then send to server")
-                        print('1. Binary')
-                        print('2. JSON')
-                        print('3. XML')
-                        optionpicklingformat= input('What Would You Like To Do from Above Options: ')
-                        if optionpicklingformat == "1":
-                            file_path = pickling_Binary(userdictionary, dictfilename)
-                            if send_file_to_server(connection, file_path):
-                                success_message('File uploaded successfully')
-                            else:
-                                error_message('Error While Uploading File')
-                        elif optionpicklingformat == "2":
-                            file_path = pickling_JSON(userdictionary, dictfilename)
-                            if send_file_to_server(connection, file_path):
-                                success_message('File uploaded successfully')
-                            else:
-                                error_message('Error While Uploading File')
-                        elif optionpicklingformat == "3":         
-                            file_path = pickling_XML(userdictionary,dictfilename)
-                            if send_file_to_server(connection, file_path):
-                                success_message('File uploaded successfully')
-                            else:
-                                error_message('Error While Uploading File')
+                    optionencrypt = input('What Would You Like To Do from the Above Options: ')
+                    if optionencrypt == "1":
+                        encryptdata=True
+                    elif optionencrypt == "2":
+                        encryptdata=False
+                    print("In what pickling format do you want to serialise the data and then send to server")
+                    print('1. Binary')
+                    print('2. JSON')
+                    print('3. XML')
+                    optionpicklingformat= input('What Would You Like To Do from Above Options: ')
+                    if optionpicklingformat == "1":
+                        file_path = pickling_Binary(userdictionary, dictfilename)
+                        if send_file_to_server(connection, file_path):
+                            success_message('File uploaded successfully')
+                        else:
+                            error_message('Error While Uploading File')
+                    elif optionpicklingformat == "2":
+                        file_path = pickling_JSON(userdictionary, dictfilename)
+                        if send_file_to_server(connection, file_path):
+                            success_message('File uploaded successfully')
+                        else:
+                            error_message('Error While Uploading File')
+                    elif optionpicklingformat == "3":         
+                        file_path = pickling_XML(userdictionary,dictfilename)
+                        if send_file_to_server(connection, file_path):
+                            success_message('File uploaded successfully')
+                        else:
+                            error_message('Error While Uploading File')
                 elif optionsystem == "2":
                     print('This is the file sharing system')
                     print('1. Upload File.')
