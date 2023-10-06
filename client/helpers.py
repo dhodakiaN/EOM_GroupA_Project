@@ -45,7 +45,7 @@ def success_message(message):
     """
     #clear_screen()
     print(f'\n\033[1;32m{message}\033[0m\n')  # \033[1;32m and \033[0m are used to color the text green
-    sleep(3)  # Pauses execution for 3 seconds
+    sleep(3)  # Pauses execution for 3 secondsfdg
     #clear_screen()
 
 

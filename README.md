@@ -68,6 +68,6 @@ If using a Windows OS:
 ## 📚 Features
 - [x] Upload files to the server
 - [x] Download files from the server
-- [ ] Encrypt files before  uploading
-- [ ] Decrypt files after downloading
+- [X] Encrypt files before  uploading
+- [X] Decrypt files after downloading
 - [x] Authentication
