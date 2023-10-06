@@ -41,7 +41,15 @@ def launchMenu():
                     userdictionary={dictkey:dictvalues}
                     print("This is your dictionary below:")
                     print(userdictionary)
-                    dictfilename = input('What should we call the file name ')
+                    print("Do you want the server to print or do you want to save the data in a file?")
+                    print('1. Print the contents in the server')
+                    print('2. Save the contents to a file')
+                    optionconfserver = ('What Would You Like To Do from the Above Options: ')
+                    if optionconfserver == "1":
+                        configserver = "SaveFile"
+                    elif optionconfserver == "2":
+                        configserver = "ScreenPrint"
+                        dictfilename  = input('What should we call the file name ')
                     print("Do you want to encrypt the file before it is sent to a server?")
                     print('1. Yes')
                     print('2. No')
