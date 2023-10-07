@@ -1,7 +1,7 @@
 import pickle  # For serializing and deserializing Python object structures
 import os  # For interacting with the operating system
+import rsa # For public and private keys
 
-from cryptography.fernet import Fernet
 
 
 def load_account():
@@ -84,5 +84,52 @@ def get_file_bytes(name):
         return False  # Returning False in case of an error
     return file_bytes  # Returning the bytes of the file
 
-def encrypt_file():
-    print("yes")
+def get_encryption_keys():
+    """
+    Reads directory in assets/keys and generates a 
+    private or public key if it does not exist
+    """ 
+
+    # Define the directory for the keys
+    keys_directory = "server/assets/keys/"
+
+    # Check if the keys already exist
+    public_key_path = os.path.join(keys_directory, "public.pem")
+    private_key_path = os.path.join(keys_directory, "private.pem")
+
+    if os.path.exists(public_key_path) and os.path.exists(private_key_path):
+        print("Encryption keys already exist. Skipping key generation.")
+        return
+
+    # Create the directory if it doesn't exist
+    if not os.path.exists(keys_directory):
+        os.makedirs(keys_directory)
+
+    # Generate new encryption keys
+    public_key, private_key = rsa.newkeys(1024)
+
+    # Save the public key
+    with open(public_key_path, "wb") as f:
+        f.write(public_key.save_pkcs1("PEM"))
+
+    # Save the private key
+    with open(private_key_path, "wb") as f:
+        f.write(private_key.save_pkcs1("PEM"))
+
+    print("Encryption keys generated and saved.")
+
+def load_public_key():
+    """
+    This is to load the public key from file
+    """
+    keys_directory = "server/assets/keys/"
+    public_key_path = os.path.join(keys_directory, "public.pem")
+    
+    if os.path.exists(public_key_path):
+        with open(public_key_path, "rb") as f:
+            public_key_data = f.read()
+            public_key = rsa.PublicKey.load_pkcs1(public_key_data, format="PEM")
+            return public_key
+    else:
+        return None
+

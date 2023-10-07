@@ -2,6 +2,7 @@ import socket  # For creating network connections
 from dotenv import load_dotenv  # For loading environment variables from a .env file
 import os  # For interacting with the operating system
 from response import handle_requests  # For handling incoming requests
+from helpers import get_encryption_keys,load_public_key
 
 
 def runServer():
@@ -9,6 +10,9 @@ def runServer():
     Initializes and runs the server, which listens for incoming connections and handles requests.
     """
     try:
+        #generate encyption keys (if not already present)
+        get_encryption_keys()
+        #loads public key from file
         load_dotenv()  # Loading environment variables from a .env file
         # Creating a new socket object
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -36,11 +40,13 @@ def runServer():
             data = request['data']  # Extracting the data from the request
 
             print('event', event)  # Printing the event to the console
-            print('data', data)  # Printing the data to the console
-
+            if event == "Screenprint":
+                print("This is the data that has been sent by the client: \n", data)
+                print('data', data)  # Printing the data to the console
             # Handling the request based on the event and data
+            print('data', data)
             handle_requests(event, connection, data)
-            connection.close()  # Closing the connection after handling the request
+            connection.close() 
 
     except Exception as e:  # Catching any exceptions that occur
         print(e)  # Printing the exception to the console
