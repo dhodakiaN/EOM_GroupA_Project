@@ -4,8 +4,8 @@ import os  # For interacting with the operating system
 from tkinter.filedialog import askopenfilename, askdirectory
 
 # Importing various helper functions and actions
-from helpers import error_message, success_message, clear_screen, forced_input, create_connection,encrypt_file,generate_key,load_key
-from actions import login, create_account, send_file_to_server, download_file_from_server, get_files_list,pickling_Binary,pickling_JSON,pickling_XML
+from helpers import error_message, success_message, clear_screen, forced_input, create_connection,encrypt_data,loadpublickey
+from actions import login, create_account, send_file_to_server, download_file_from_server, get_files_list,pickling_Binary,pickling_JSON,pickling_XML,screenprint,request_public_key_from_server
 
 
 def launchMenu():
@@ -41,42 +41,54 @@ def launchMenu():
                     userdictionary={dictkey:dictvalues}
                     print("This is your dictionary below:")
                     print(userdictionary)
-                    print("Do you want the server to print or do you want to save the data in a file?")
-                    print('1. Print the contents in the server')
-                    print('2. Save the contents to a file')
-                    optionconfserver = ('What Would You Like To Do from the Above Options: ')
-                    if optionconfserver == "1":
-                        configserver = "SaveFile"
-                    elif optionconfserver == "2":
-                        configserver = "ScreenPrint"
-                        dictfilename  = input('What should we call the file name ')
-                    print("Do you want to encrypt the file before it is sent to a server?")
+                    print("Do you want to encrypt the data before it is sent to a server?")
                     print('1. Yes')
                     print('2. No')
                     optionencrypt = input('What Would You Like To Do from the Above Options: ')
                     if optionencrypt == "1":
-                        encryptdata=True
+                        public_key = request_public_key_from_server(connection)
+                        public_key = loadpublickey(public_key)
+                        connection.close()
+                        connection = create_connection()
+                        encryptdata=True #flag to encrypt data
                     elif optionencrypt == "2":
-                        encryptdata=False
+                        encryptdata=False #flag to keep data the same
+                    print("Do you want the server to print or do you want to save the data in a file?")
+                    print('1. Print the contents in the server')
+                    print('2. Save the contents to a file')
+                    print('0. Exit.')
+                    optionconfserver = input('What Would You Like To Do from the Above Options: ')
+                    if optionconfserver == "1":
+                        configserver = "Screenprint"
+                        if screenprint(connection,userdictionary):
+                            success_message('Printed on Server Successfully')
+                        else:
+                            error_message('Error While Printing on Server')
+                    elif optionconfserver == "2":
+                        configserver = "SaveFile"
+                        dictfilename  = input('Please Enter the Desired File Name:  ')
+                    elif optionconfserver == "0":
+                        print("Exiting system")
+                        break
                     print("In what pickling format do you want to serialise the data and then send to server")
                     print('1. Binary')
                     print('2. JSON')
                     print('3. XML')
                     optionpicklingformat= input('What Would You Like To Do from Above Options: ')
                     if optionpicklingformat == "1":
-                        file_path = pickling_Binary(userdictionary, dictfilename)
+                        file_path = pickling_Binary(userdictionary, dictfilename,encryptdata,public_key)
                         if send_file_to_server(connection, file_path):
                             success_message('File uploaded successfully')
                         else:
                             error_message('Error While Uploading File')
                     elif optionpicklingformat == "2":
-                        file_path = pickling_JSON(userdictionary, dictfilename)
+                        file_path = pickling_JSON(userdictionary, dictfilename,encryptdata,public_key)
                         if send_file_to_server(connection, file_path):
                             success_message('File uploaded successfully')
                         else:
                             error_message('Error While Uploading File')
                     elif optionpicklingformat == "3":         
-                        file_path = pickling_XML(userdictionary,dictfilename)
+                        file_path = pickling_XML(userdictionary,dictfilename,encryptdata,public_key)
                         if send_file_to_server(connection, file_path):
                             success_message('File uploaded successfully')
                         else:
@@ -90,6 +102,7 @@ def launchMenu():
                     print('0. Exit.')
                     option = input('What Would You Like To Do from Above Options: ')
                     if option == '1':  # Upload File
+                        print("New Window Opened, Select the .txt file to send")
                         file_path = askopenfilename()  # Displaying file selection dialog
                         if not file_path:
                             error_message('File not selected')
@@ -100,6 +113,7 @@ def launchMenu():
                             error_message('Error While Uploading File')
                     
                     elif option == '2':  # Upload file and encrypt
+                        print("New Window Opened, Select the .txt file to send")
                         file_path = askopenfilename()  # Displaying file selection dialog
                         if not file_path:
                             error_message('File not selected')
@@ -139,6 +153,7 @@ def launchMenu():
                             continue
 
                         selected_file_name = files_list[selected_file_index - 1]
+                        print("New Window Opened, Select the Directory for Download from Server")
                         selected_directory = askdirectory()  # Displaying directory selection dialog
                         if not selected_directory:
                             error_message('Directory not selected')
@@ -173,6 +188,7 @@ def launchMenu():
                             continue
 
                         selected_file_name = files_list[selected_file_index - 1]
+                        print("New Window Opened, Select the Directory for Download from Server")
                         selected_directory = askdirectory()  # Displaying directory selection dialog
                         if not selected_directory:
                             error_message('Directory not selected')

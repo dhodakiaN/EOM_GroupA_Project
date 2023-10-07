@@ -2,9 +2,10 @@ import os  # Importing os module to interact with the OS and file system
 import pickle #importing pickle module to pickle 
 import json #import module for json files
 import dicttoxml #import module for xml files
-from helpers import clear_screen, forced_input, to_request, get_mac_address,decrypt_file,load_key  # Importing helper functions
+from helpers import clear_screen, forced_input, to_request, get_mac_address,encrypt_data,create_connection
 import socket  # Importing socket module for network connections
-
+import rsa
+import xml.etree.ElementTree as ET
 
 def create_account(connection, data):
     """
@@ -73,14 +74,13 @@ def get_files_list(connection):
         return []
 
 
-def download_file_from_server(connection, file_name, directory_path, decrypt):
+def download_file_from_server(connection, file_name, directory_path):
     """
     Sends a request to download a file from the server.
 
     :param connection: The socket connection object.
     :param file_name: The name of the file to be downloaded.
     :param directory_path: The path of the directory where the downloaded file will be saved.
-    :param decrypt: A boolean flag to determine if the downloaded file should be decrypted.
     :return: True if file is downloaded successfully, False otherwise.
     """
     try:
@@ -94,14 +94,6 @@ def download_file_from_server(connection, file_name, directory_path, decrypt):
         file_path = os.path.join(directory_path, file_name)  # Creating the full file path
         with open(file_path, 'wb') as file:  # Using a context manager to handle the file operations
             file.write(eval(response))  # Writing the evaluated response to the file
-
-        # If the decrypt flag is set to True, decrypt the downloaded file
-        print(decrypt)
-        if decrypt:
-            print("this needs to be decrypted")
-            print(file_path)
-            decrypt_file(file_path)  # Decrypt the downloaded file
-
         return True
     except Exception as e:  # Handling exceptions
         print(e)
@@ -135,33 +127,104 @@ def send_file_to_server(connection, file_path):
         print(e)
         return False
     
-def pickling_Binary(data_dict, filename):
+def request_public_key_from_server(connection):
+    """
+    Requests the public key from the server.
+
+    :param connection: The socket connection object.
+    :return: Public key as a byte string if received successfully, None otherwise.
+    """
+    try:
+        # Sending a request to the server to get the public key
+        request = {
+            'event': 'request-public-key',
+            'data': "sendpublickey"
+        }
+        connection.send(str(request).encode('utf-8'))
+        # Receive the public key from the server
+        public_key = connection.recv(65536)
+        return public_key
+    except Exception as e:
+        print(e)
+        return None
+
+def screenprint(connection,data_dict):
+    try:
+        connection.send(to_request('Screenprint',data_dict))
+        return True
+    except Exception as e:  # Handling exceptions
+        print(e)
+        return False
+
+
+
+def pickling_Binary(data_dict, filename, encryptdata, public_key=None):
     directory = './client/assets/'
     filepath = os.path.join(directory, filename + '.pkl')
-    # Ensure the directory exists
+    print(data_dict, filename, encryptdata, public_key)
     if not os.path.exists(directory):
         os.makedirs(directory)
-    with open(filepath, 'wb') as file:
-        pickle.dump(data_dict, file)
+    
+    if encryptdata and public_key is not None:
+        # Serialize the data_dict to a binary string
+        data_to_encrypt = pickle.dumps(data_dict)
+        
+        # Encrypt the data using the public key
+        encrypted_data = encrypt_data(data_to_encrypt, public_key)
+        
+        # Write the encrypted data to the file
+        with open(filepath, 'wb') as file:
+            file.write(encrypted_data)
+    else:
+        # Serialize and write the data_dict as is (not encrypted)
+        with open(filepath, 'wb') as file:
+            pickle.dump(data_dict, file)
+    
     return filepath
     
-def pickling_JSON(data_dict, filename):
+def pickling_JSON(data_dict, filename, encryptdata, public_key=None):
     directory = './client/assets/'
     filepath = os.path.join(directory, filename + '.json')
-    # Ensure the directory exists
+
     if not os.path.exists(directory):
         os.makedirs(directory)
-    with open(filepath, 'w') as file:
-        json.dump(data_dict, file)
+
+    if encryptdata and public_key is not None:
+        # Serialise the data_dict to a JSON string
+        data_to_encrypt = json.dumps(data_dict)
+        encoded_data = data_to_encrypt.encode('utf-8') #needs additional encodeing
+        # Encrypt the data using the public key
+        encrypted_data = encrypt_data(encoded_data, public_key)
+        
+        # Write the encrypted data to the file
+        with open(filepath, 'wb') as file:
+            file.write(encrypted_data)
+    else:
+        # Serialize and write the data_dict as JSON (not encrypted)
+        with open(filepath, 'w') as file:
+            json.dump(data_dict, file)
+
     return filepath
-    
-def pickling_XML(data_dict, filename):
+
+def pickling_XML(data_dict, filename, encryptdata, public_key=None):
     xml_data = dicttoxml.dicttoxml(data_dict)
     directory = './client/assets/'
-    # Ensure the directory exists
+
     if not os.path.exists(directory):
         os.makedirs(directory)
+
     filepath = os.path.join(directory, filename + '.xml')
-    with open(filepath, 'wb') as file:
-        file.write(xml_data)
+
+    if encryptdata and public_key is not None:
+        # Encrypt the XML data using the public key
+        encrypted_data = encrypt_data(xml_data, public_key)
+        
+        # Write the encrypted data to the file
+        with open(filepath, 'wb') as file:
+            file.write(encrypted_data)
+    else:
+        # Write the XML data as is (not encrypted)
+        with open(filepath, 'wb') as file:
+            file.write(xml_data)
+
     return filepath
