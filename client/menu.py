@@ -124,16 +124,20 @@ def launchMenu():
                         if not file_path:
                             error_message('File not selected')
                             continue
-
-                        # Encrypt the selected file using the loaded key
-                        encrypted_file_path = encrypt_file(file_path)
+                        public_key = request_public_key_from_server(connection)
+                        public_key = loadpublickey(public_key)
+                        connection.close()
+                        connection = create_connection()
+                        # Read the contents of the text file
+                        with open(file_path, 'rb') as file:
+                            file_contents = file.read()
+                        encrypted_contents = encrypt_data(file_contents, public_key)
+                        with open(file_path, 'wb') as file:
+                            file.write(encrypted_contents)
                         
                         # Attempt to send the encrypted file (with the _encr suffix) to the server
-                        if send_file_to_server(connection, encrypted_file_path):
+                        if send_file_to_server(connection, file_path):
                             success_message('File uploaded and encrypted successfully')
-                            
-                            # Delete the _encr file after sending it
-                            os.remove(encrypted_file_path)
                         else:
                             error_message('Error While Uploading File')
 
@@ -168,7 +172,7 @@ def launchMenu():
                         connection.close()  # Closing and reopening the connection before downloading the file
                         connection = create_connection()
 
-                        if download_file_from_server(connection, selected_file_name, selected_directory,decrypt=False):
+                        if download_file_from_server(connection, selected_file_name, selected_directory):
                             success_message('File downloaded successfully')
                         else:
                             error_message('Error While Downloading File')
@@ -200,14 +204,14 @@ def launchMenu():
                         optionconfserver = input('What Would You Like To Do from the Above Options: ')
                         if optionconfserver == "1" and encryptdata==False :
                             if screenprint(connection,textdata,encryptdata):
-                                success_message('Printed on Server Successfully')
+                                success_message('Printed on screen')
                                 break
                             else:
                                 error_message('Error While Printing on Server')
                         elif optionconfserver == "1" and encryptdata==True :
                             #code for print screen and encrypt
                             if screenprint(connection,textdata,encryptdata,public_key):
-                                success_message('Encrypted data sent Successfully')
+                                success_message('Encrypted Data sent Successfully')
                                 break
                             else:
                                 error_message('Error While Printing on Server')
