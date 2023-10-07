@@ -5,3 +5,4 @@ tk==0.1.0
 cryptography==39.0.2
 dicttoxml == 1.7.16
 python-dotenv == 1.0.0
+rsa == 4.9
