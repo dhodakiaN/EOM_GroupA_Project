@@ -54,12 +54,11 @@ def launchMenu():
                     elif optionencrypt == "2":
                         encryptdata=False #flag to keep data the same
                     print("Do you want the server to print or do you want to save the data in a file?")
-                    print('1. Print the contents in the server')
+                    print('1. Print the contents to a screen in the server')
                     print('2. Save the contents to a file')
                     print('0. Exit.')
                     optionconfserver = input('What Would You Like To Do from the Above Options: ')
                     if optionconfserver == "1" and encryptdata==False :
-                        configserver = "Screenprint"
                         if screenprint(connection,userdictionary,encryptdata):
                             success_message('Printed on Server Successfully')
                             break
@@ -73,7 +72,6 @@ def launchMenu():
                         else:
                             error_message('Error While Printing on Server')
                     elif optionconfserver == "2":
-                        configserver = "SaveFile"
                         dictfilename  = input('Please Enter the Desired File Name:  ')
                     elif optionconfserver == "0":
                         print("Exiting system")
@@ -106,7 +104,7 @@ def launchMenu():
                     print('1. Upload File.')
                     print('2. Upload File and Encrypt')
                     print('3. Download File.')
-                    print('4. Download File and Decrypt.')
+                    print('4. Create a text file.')
                     print('0. Exit.')
                     option = input('What Would You Like To Do from Above Options: ')
                     if option == '1':  # Upload File
@@ -175,41 +173,70 @@ def launchMenu():
                         else:
                             error_message('Error While Downloading File')
 
-                    elif option == '4':  # Download File and decrypt
-                        #clear_screen()
-                        # Getting the list of available files
-                        files_list = get_files_list(connection)
+                    elif option == '4':  # Enter text and send text file to server
+                        textdata = input("Please enter the text for the text file: \n")
+                        textfilename = input("Please enter the file name for the text file without the extension: \n")
+                        pathclient='./client/assets/'+textfilename+".txt"
+                        # Create and write the text data to a text file
+                        with open(pathclient, 'w') as textfile:
+                            textfile.write(textdata) # create client side file
+                        print(f"Text data has been written to {textfilename}")
+                        print("Do you want to encrypt the data before it is sent to a server?")
+                        print('1. Yes')
+                        print('2. No')
+                        optionencrypt = input('What Would You Like To Do from the Above Options: ')
+                        if optionencrypt == "1":
+                            public_key = request_public_key_from_server(connection)
+                            public_key = loadpublickey(public_key)
+                            connection.close()
+                            connection = create_connection()
+                            encryptdata=True #flag to encrypt data
+                        elif optionencrypt == "2":
+                            encryptdata=False #flag to encrypt data
+                        print("Do you want the server to print or do you want to save the data in a file?")
+                        print('1. Print the contents to a screen in the server')
+                        print('2. Save the contents to a file')
+                        print('0. Exit.')
+                        optionconfserver = input('What Would You Like To Do from the Above Options: ')
+                        if optionconfserver == "1" and encryptdata==False :
+                            if screenprint(connection,textdata,encryptdata):
+                                success_message('Printed on Server Successfully')
+                                break
+                            else:
+                                error_message('Error While Printing on Server')
+                        elif optionconfserver == "1" and encryptdata==True :
+                            #code for print screen and encrypt
+                            if screenprint(connection,textdata,encryptdata,public_key):
+                                success_message('Encrypted data sent Successfully')
+                                break
+                            else:
+                                error_message('Error While Printing on Server')
+                        elif optionconfserver == "2" and encryptdata==False :
 
-                        if not files_list:
-                            error_message('No files found')
-                            continue
+                            if send_file_to_server(connection, pathclient):
+                                success_message('File uploaded successfully')
+                            else:
+                                error_message('Error While Uploading File')
 
-                        # Displaying the list of files
-                        for index, file in enumerate(files_list):
-                            print(f'({index + 1}) {file}')
-                        selected_file_index = int(forced_input(
-                            'Please enter the file number (enter 0 to cancel) : '))
-                        if selected_file_index == 0:
-                            continue
-                        if selected_file_index > len(files_list):
-                            error_message('Invalid file number')
-                            continue
+                        elif optionconfserver == "2" and encryptdata==True :
+                            # Read the contents of the text file
+                            with open(pathclient, 'rb') as file:
+                                file_contents = file.read()
+                            encrypted_contents = encrypt_data(file_contents, public_key)
+                            with open(pathclient, 'wb') as file:
+                                file.write(encrypted_contents)
+                            
+                            if send_file_to_server(connection, pathclient):
+                                success_message(' Encrypted File uploaded successfully')
+                            else:
+                                error_message('Error While Uploading File')
 
-                        selected_file_name = files_list[selected_file_index - 1]
-                        print("New Window Opened, Select the Directory for Download from Server")
-                        selected_directory = askdirectory()  # Displaying directory selection dialog
-                        if not selected_directory:
-                            error_message('Directory not selected')
-                            continue
+                        elif optionconfserver == "0":
+                            print("Exiting system")
+                            break
 
-                        connection.close()  # Closing and reopening the connection before downloading the file
-                        connection = create_connection()
-
-                        if download_file_from_server(connection, selected_file_name, selected_directory,decrypt=True):
-                            success_message('Decrypted File downloaded successfully')
-                        else:
-                            error_message('Error While Downloading Files')
                     
+
                     elif option == '0':  # Exit
                         clear_screen()
                         print('Thank you for using our system')
