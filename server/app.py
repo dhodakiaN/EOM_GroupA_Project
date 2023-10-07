@@ -2,13 +2,17 @@ import socket  # For creating network connections
 from dotenv import load_dotenv  # For loading environment variables from a .env file
 import os  # For interacting with the operating system
 from response import handle_requests  # For handling incoming requests
-
+from helpers import get_encryption_keys,load_private_key,decrypt_data
+import pickle
 
 def runServer():
     """
     Initializes and runs the server, which listens for incoming connections and handles requests.
     """
     try:
+        #generate encyption keys (if not already present)
+        get_encryption_keys()
+        #loads public key from file
         load_dotenv()  # Loading environment variables from a .env file
         # Creating a new socket object
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -36,11 +40,25 @@ def runServer():
             data = request['data']  # Extracting the data from the request
 
             print('event', event)  # Printing the event to the console
-            print('data', data)  # Printing the data to the console
+            if event == "Screenprint":
+                print("This is the data that has been sent by the client: \n")
+                print('data: ', data)
+            elif event == "Screenprintenc":
+                print("This is the data that has been sent by the client Encrypted: \n")
+                print('Encrypted data: ', data)
+                private_key=load_private_key()
+                print(private_key)
+                print ("This is the data that is decrypted by the private key")
+                decycrypteddata = decrypt_data(data, private_key)
+                data_dict = pickle.loads(decycrypteddata)
+                print('Decrypted data', data_dict)
+
 
             # Handling the request based on the event and data
+            else:
+                print('data', data)
             handle_requests(event, connection, data)
-            connection.close()  # Closing the connection after handling the request
+            connection.close() 
 
     except Exception as e:  # Catching any exceptions that occur
         print(e)  # Printing the exception to the console
