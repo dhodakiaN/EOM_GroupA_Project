@@ -1,6 +1,6 @@
 import unittest
-from unittest.mock import Mock
-from actions import create_account, login,get_files_list
+from unittest.mock import Mock,patch
+from actions import create_account, login,get_files_list,pickling_Binary,pickling_JSON,pickling_XML,encrypt_data
 
 class TestClientActions(unittest.TestCase):
 
@@ -46,7 +46,73 @@ class TestClientActions(unittest.TestCase):
         expected_files = [{"name": "file1.txt", "size": 100}, {"name": "file2.txt", "size": 200}]
         self.assertEqual(files_list, expected_files)
 
-    
+    def test_pickling_Binary(self):
+        # Mock the encrypt_data function
+        encrypt_data_mock = Mock(return_value=b'encrypted_data')
+        
+        # Create a mock public key
+        public_key = Mock()
+
+        # Patch the encrypt_data function to return the mock encrypted data
+        with patch('actions.encrypt_data', encrypt_data_mock):
+            # Call the pickling_Binary function with mock data and options
+            data_dict = {'key': 'value'}
+            filename = 'test'
+            
+            encryptdata = True
+            result = pickling_Binary(data_dict, filename, encryptdata, public_key)
+
+        # Assert that the encrypt_data function was called with the expected arguments
+        assert_encrypt_data_called_with(encrypt_data_mock, b'{"key": "value"}', public_key)
+
+        # Assert that the result is the expected file path
+        expected_filepath = './client/assets/test.pkl'
+        self.assertEqual(result, expected_filepath)
+
+    def test_pickling_JSON(self):
+        # Mock the encrypt_data function
+        encrypt_data_mock = Mock(return_value=b'encrypted_data')
+        
+        # Create a mock public key
+        public_key = Mock()
+
+        # Patch the encrypt_data function to return the mock encrypted data
+        with patch('actions.encrypt_data', encrypt_data_mock):
+            # Call the pickling_JSON function with mock data and options
+            data_dict = {'key': 'value'}
+            filename = 'test'
+            encryptdata = True
+            result = pickling_JSON(data_dict, filename, encryptdata, public_key)
+
+        # Assert that the encrypt_data function was called with the expected arguments
+        assert_encrypt_data_called_with(encrypt_data_mock, b'{"key": "value"}', public_key)
+
+        # Assert that the result is the expected file path
+        expected_filepath = './client/assets/test.json'
+        self.assertEqual(result, expected_filepath)
+
+    def test_pickling_XML(self):
+        # Mock the encrypt_data function
+        encrypt_data_mock = Mock(return_value=b'encrypted_data')
+        
+        # Create a mock public key
+        public_key = Mock()
+
+        # Patch the encrypt_data function to return the mock encrypted data
+        with patch('actions.encrypt_data', encrypt_data_mock):
+            # Call the pickling_XML function with mock data and options
+            data_dict = {'key': 'value'}
+            filename = 'test'
+            encryptdata = True
+            result = pickling_XML(data_dict, filename, encryptdata, public_key)
+
+        # Assert that the encrypt_data function was called with the expected arguments
+        assert_encrypt_data_called_with(encrypt_data_mock, b'{"key": "value"}', public_key)
+
+        # Assert that the result is the expected file path
+        expected_filepath = './client/assets/test.xml'
+        self.assertEqual(result, expected_filepath)
+
 
 if __name__ == '__main__':
     unittest.main()
