@@ -58,10 +58,18 @@ def launchMenu():
                     print('2. Save the contents to a file')
                     print('0. Exit.')
                     optionconfserver = input('What Would You Like To Do from the Above Options: ')
-                    if optionconfserver == "1":
+                    if optionconfserver == "1" and encryptdata==False :
                         configserver = "Screenprint"
-                        if screenprint(connection,userdictionary):
+                        if screenprint(connection,userdictionary,encryptdata):
                             success_message('Printed on Server Successfully')
+                            break
+                        else:
+                            error_message('Error While Printing on Server')
+                    elif optionconfserver == "1" and encryptdata==True :
+                        #code for print screen and encrypt
+                        if screenprint(connection,userdictionary,encryptdata,public_key):
+                            success_message('Encrypted data sent Successfully')
+                            break
                         else:
                             error_message('Error While Printing on Server')
                     elif optionconfserver == "2":

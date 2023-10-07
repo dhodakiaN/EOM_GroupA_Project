@@ -28,6 +28,8 @@ def handle_requests(event, connection, data=None):
         return download_file(connection, data)
     elif event == 'Screenprint':
         connection.send("Data is printed on server side".encode('utf-8'))
+    elif event == 'Screenprintenc':
+        connection.send("Data is now encoded".encode('utf-8'))
     elif event == 'request-public-key':
         public_key = load_public_key()
         return request_public_key(connection, public_key)

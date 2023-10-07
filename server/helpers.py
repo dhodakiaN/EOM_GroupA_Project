@@ -132,4 +132,31 @@ def load_public_key():
             return public_key
     else:
         return None
+    
+def load_private_key():
+    keys_directory = "server/assets/keys/"
+    private_key_path = os.path.join(keys_directory, "private.pem")
+    
+    if os.path.exists(private_key_path):
+        with open(private_key_path, "rb") as f:
+            private_key_data = f.read()
+            private_key = rsa.PrivateKey.load_pkcs1(private_key_data, format="PEM")
+            return private_key
+    else:
+        return None
+
+def decrypt_data(encrypted_data, private_key):
+    """
+    Decrypt encrypted data using a private key.
+
+    :param encrypted_data: The encrypted data to decrypt.
+    :param private_key: The private key to use for decryption.
+    :return: The decrypted data.
+    """
+    try:
+        decrypted_data = rsa.decrypt(encrypted_data, private_key)
+        return decrypted_data
+    except rsa.pkcs1.DecryptionError as e:
+        print("Decryption failed:", e)
+        return None
 

@@ -148,10 +148,16 @@ def request_public_key_from_server(connection):
         print(e)
         return None
 
-def screenprint(connection,data_dict):
+def screenprint(connection,data_dict,encryptdata,public_key=None):
     try:
-        connection.send(to_request('Screenprint',data_dict))
-        return True
+        if encryptdata == False:
+            connection.send(to_request('Screenprint',data_dict))
+            return True
+        elif encryptdata == True:
+            data_to_encrypt = pickle.dumps(data_dict)
+            encrypted_data = encrypt_data(data_to_encrypt, public_key)
+            connection.send(to_request('Screenprintenc',encrypted_data))
+            return True
     except Exception as e:  # Handling exceptions
         print(e)
         return False
