@@ -1,5 +1,5 @@
 import unittest
-from client.actions import create_account, login, get_files_list, encrypt_data
+from actions import create_account, login, get_files_list, encrypt_data
 from unittest.mock import Mock
 
 class TestClientActions(unittest.TestCase):
@@ -54,7 +54,7 @@ class TestClientActions(unittest.TestCase):
         public_key = Mock()
 
         # Patch the rsa.encrypt function to return the mock encrypted data
-        with unittest.mock.patch('client.helpers.rsa.encrypt', rsa_encrypt_mock):
+        with unittest.mock.patch('helpers.rsa.encrypt', rsa_encrypt_mock):
             # Test data
             data = b'This is a test data'
 
@@ -75,7 +75,7 @@ class TestClientActions(unittest.TestCase):
         public_key = Mock()
 
         # Patch the rsa.encrypt function to raise an exception
-        with unittest.mock.patch('client.helpers.rsa.encrypt', rsa_encrypt_mock):
+        with unittest.mock.patch('helpers.rsa.encrypt', rsa_encrypt_mock):
             # Test data
             data = b'This is a test data'
 

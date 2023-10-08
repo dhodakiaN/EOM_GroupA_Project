@@ -1,6 +1,6 @@
 import unittest
 import os
-from client.actions import pickling_XML, pickling_Binary, pickling_JSON
+from actions import pickling_XML, pickling_Binary, pickling_JSON
 import pickle
 import json
 import xml.etree.ElementTree as ET
