@@ -1,6 +1,7 @@
 # Importing controller functions
-from controllers import check_account, create_account, get_files, download_file, upload_file,request_public_key
+from controllers import check_account, create_account, get_files, download_file, upload_file, request_public_key
 from helpers import load_public_key
+
 
 def handle_requests(event, connection, data=None):
     """

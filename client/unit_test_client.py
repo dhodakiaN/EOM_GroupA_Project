@@ -1,13 +1,14 @@
 import unittest
-from unittest.mock import Mock,patch
-from actions import create_account, login,get_files_list,pickling_Binary,pickling_JSON,pickling_XML,encrypt_data
+from unittest.mock import Mock, patch
+from actions import create_account, login, get_files_list, pickling_Binary, pickling_JSON, pickling_XML, encrypt_data
+
 
 class TestClientActions(unittest.TestCase):
 
     def test_create_account_success(self):
         # Create a mock socket connection
         connection = Mock()
-        
+
         # Define the 'data' dictionary with test data
         data = {'email': 'test@example.com', 'username': 'testuser'}
 
@@ -49,7 +50,7 @@ class TestClientActions(unittest.TestCase):
     def test_pickling_Binary(self):
         # Mock the encrypt_data function
         encrypt_data_mock = Mock(return_value=b'encrypted_data')
-        
+
         # Create a mock public key
         public_key = Mock()
 
@@ -58,7 +59,7 @@ class TestClientActions(unittest.TestCase):
             # Call the pickling_Binary function with mock data and options
             data_dict = {'key': 'value'}
             filename = 'test'
-            
+
             encryptdata = True
             result = pickling_Binary(data_dict, filename, encryptdata, public_key)
 
@@ -72,7 +73,7 @@ class TestClientActions(unittest.TestCase):
     def test_pickling_JSON(self):
         # Mock the encrypt_data function
         encrypt_data_mock = Mock(return_value=b'encrypted_data')
-        
+
         # Create a mock public key
         public_key = Mock()
 
@@ -94,7 +95,7 @@ class TestClientActions(unittest.TestCase):
     def test_pickling_XML(self):
         # Mock the encrypt_data function
         encrypt_data_mock = Mock(return_value=b'encrypted_data')
-        
+
         # Create a mock public key
         public_key = Mock()
 
@@ -116,9 +117,3 @@ class TestClientActions(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
-
-
-
-
-

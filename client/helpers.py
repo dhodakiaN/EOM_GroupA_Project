@@ -2,7 +2,7 @@ import os  # For interacting with the operating system
 import uuid  # For generating unique identifiers
 from time import sleep  # For pausing the execution of the program
 import socket  # For creating network connections
-import rsa #for encryption
+import rsa  # for encryption
 
 
 def forced_input(message):
@@ -31,10 +31,10 @@ def error_message(message):
 
     :param message: The error message to be displayed.
     """
-    #clear_screen()
+    # clear_screen()
     print(f'\n\033[1;31m{message}\033[0m\n')  # \033[1;31m and \033[0m are used to color the text red
     sleep(3)  # Pauses execution for 3 seconds
-    #clear_screen()
+    # clear_screen()
 
 
 def success_message(message):
@@ -43,10 +43,10 @@ def success_message(message):
 
     :param message: The success message to be displayed.
     """
-    #clear_screen()
+    # clear_screen()
     print(f'\n\033[1;32m{message}\033[0m\n')  # \033[1;32m and \033[0m are used to color the text green
     sleep(3)  # Pauses execution for 3 secondsfdg
-    #clear_screen()
+    # clear_screen()
 
 
 def get_mac_address():
@@ -81,6 +81,7 @@ def create_connection():
     connection.connect((os.getenv('HOST'), int(os.getenv('PORT'))))
     return connection
 
+
 def encrypt_data(data, public_key):
     try:
         # Encrypt the data using the public key
@@ -89,8 +90,9 @@ def encrypt_data(data, public_key):
     except Exception as e:
         print(e)
         return None
-    
+
+
 def loadpublickey(public_key):
-        # Load the public key into an RSA key object
-        public_key = rsa.PublicKey.load_pkcs1(public_key, format='PEM')
-        return public_key
+    # Load the public key into an RSA key object
+    public_key = rsa.PublicKey.load_pkcs1(public_key, format='PEM')
+    return public_key

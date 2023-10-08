@@ -1,7 +1,6 @@
 import pickle  # For serializing and deserializing Python object structures
 import os  # For interacting with the operating system
-import rsa # For public and private keys
-
+import rsa  # For public and private keys
 
 
 def load_account():
@@ -39,6 +38,7 @@ def save_account(account):
         print(e)  # Printing the exception to the console
         return False  # Returning False in case of an error
     return True  # Returning True if the account is saved successfully
+
 
 def all_files():
     """
@@ -84,11 +84,12 @@ def get_file_bytes(name):
         return False  # Returning False in case of an error
     return file_bytes  # Returning the bytes of the file
 
+
 def get_encryption_keys():
     """
     Reads directory in assets/keys and generates a 
     private or public key if it does not exist
-    """ 
+    """
 
     # Define the directory for the keys
     keys_directory = "server/assets/keys/"
@@ -118,13 +119,14 @@ def get_encryption_keys():
 
     print("Encryption keys generated and saved.")
 
+
 def load_public_key():
     """
     This is to load the public key from file
     """
     keys_directory = "server/assets/keys/"
     public_key_path = os.path.join(keys_directory, "public.pem")
-    
+
     if os.path.exists(public_key_path):
         with open(public_key_path, "rb") as f:
             public_key_data = f.read()
@@ -132,11 +134,12 @@ def load_public_key():
             return public_key
     else:
         return None
-    
+
+
 def load_private_key():
     keys_directory = "server/assets/keys/"
     private_key_path = os.path.join(keys_directory, "private.pem")
-    
+
     if os.path.exists(private_key_path):
         with open(private_key_path, "rb") as f:
             private_key_data = f.read()
@@ -144,6 +147,7 @@ def load_private_key():
             return private_key
     else:
         return None
+
 
 def decrypt_data(encrypted_data, private_key):
     """
@@ -159,4 +163,3 @@ def decrypt_data(encrypted_data, private_key):
     except rsa.pkcs1.DecryptionError as e:
         print("Decryption failed:", e)
         return None
-

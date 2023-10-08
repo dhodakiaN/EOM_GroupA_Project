@@ -1,11 +1,12 @@
 import os  # Importing os module to interact with the OS and file system
-import pickle #importing pickle module to pickle 
-import json #import module for json files
-import dicttoxml #import module for xml files
-from helpers import clear_screen, forced_input, to_request, get_mac_address,encrypt_data,create_connection
+import pickle  # importing pickle module to pickle
+import json  # import module for json files
+import dicttoxml  # import module for xml files
+from helpers import clear_screen, forced_input, to_request, get_mac_address, encrypt_data, create_connection
 import socket  # Importing socket module for network connections
 import rsa
 import xml.etree.ElementTree as ET
+
 
 def create_account(connection, data):
     """
@@ -37,7 +38,7 @@ def login(connection):
     :param connection: The socket connection object.
     :return: A tuple containing 'email' and 'username' if authorized, False otherwise.
     """
-    try :
+    try:
         mac_address = get_mac_address()  # Getting MAC address of the user's machine
         # Sending a login request with mac_address
         connection.send(to_request('login', {'mac_address': mac_address}))
@@ -53,6 +54,7 @@ def login(connection):
     except Exception as e:
         print(e)
         return False, '', ''
+
 
 def get_files_list(connection):
     """
@@ -126,7 +128,8 @@ def send_file_to_server(connection, file_path):
     except Exception as e:  # Handling exceptions
         print(e)
         return False
-    
+
+
 def request_public_key_from_server(connection):
     """
     Requests the public key from the server.
@@ -148,20 +151,20 @@ def request_public_key_from_server(connection):
         print(e)
         return None
 
-def screenprint(connection,data_dict,encryptdata,public_key=None):
+
+def screenprint(connection, data_dict, encryptdata, public_key=None):
     try:
         if encryptdata == False:
-            connection.send(to_request('Screenprint',data_dict))
+            connection.send(to_request('Screenprint', data_dict))
             return True
         elif encryptdata == True:
             data_to_encrypt = pickle.dumps(data_dict)
             encrypted_data = encrypt_data(data_to_encrypt, public_key)
-            connection.send(to_request('Screenprintenc',encrypted_data))
+            connection.send(to_request('Screenprintenc', encrypted_data))
             return True
     except Exception as e:  # Handling exceptions
         print(e)
         return False
-
 
 
 def pickling_Binary(data_dict, filename, encryptdata, public_key=None):
@@ -170,14 +173,14 @@ def pickling_Binary(data_dict, filename, encryptdata, public_key=None):
     print(data_dict, filename, encryptdata, public_key)
     if not os.path.exists(directory):
         os.makedirs(directory)
-    
+
     if encryptdata and public_key is not None:
         # Serialize the data_dict to a binary string
         data_to_encrypt = pickle.dumps(data_dict)
-        
+
         # Encrypt the data using the public key
         encrypted_data = encrypt_data(data_to_encrypt, public_key)
-        
+
         # Write the encrypted data to the file
         with open(filepath, 'wb') as file:
             file.write(encrypted_data)
@@ -185,9 +188,10 @@ def pickling_Binary(data_dict, filename, encryptdata, public_key=None):
         # Serialize and write the data_dict as is (not encrypted)
         with open(filepath, 'wb') as file:
             pickle.dump(data_dict, file)
-    
+
     return filepath
-    
+
+
 def pickling_JSON(data_dict, filename, encryptdata, public_key=None):
     directory = './client/assets/'
     filepath = os.path.join(directory, filename + '.json')
@@ -198,10 +202,10 @@ def pickling_JSON(data_dict, filename, encryptdata, public_key=None):
     if encryptdata and public_key is not None:
         # Serialise the data_dict to a JSON string
         data_to_encrypt = json.dumps(data_dict)
-        encoded_data = data_to_encrypt.encode('utf-8') #needs additional encodeing
+        encoded_data = data_to_encrypt.encode('utf-8')  # needs additional encodeing
         # Encrypt the data using the public key
         encrypted_data = encrypt_data(encoded_data, public_key)
-        
+
         # Write the encrypted data to the file
         with open(filepath, 'wb') as file:
             file.write(encrypted_data)
@@ -211,6 +215,7 @@ def pickling_JSON(data_dict, filename, encryptdata, public_key=None):
             json.dump(data_dict, file)
 
     return filepath
+
 
 def pickling_XML(data_dict, filename, encryptdata, public_key=None):
     xml_data = dicttoxml.dicttoxml(data_dict)
@@ -224,7 +229,7 @@ def pickling_XML(data_dict, filename, encryptdata, public_key=None):
     if encryptdata and public_key is not None:
         # Encrypt the XML data using the public key
         encrypted_data = encrypt_data(xml_data, public_key)
-        
+
         # Write the encrypted data to the file
         with open(filepath, 'wb') as file:
             file.write(encrypted_data)

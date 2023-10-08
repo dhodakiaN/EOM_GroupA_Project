@@ -65,7 +65,7 @@ def upload_file(connection, data):
     :param connection: The socket connection object.
     :param data: A dictionary containing the 'name' and 'bytes' for the file to be uploaded.
     """
-    
+
     try:
         # Creating a new file with the received name and bytes
         if create_file(data['name'], data['bytes']):
@@ -101,8 +101,9 @@ def download_file(connection, data):
         # Sending error message in case of an error
         connection.send('file-not-found'.encode('utf-8'))
 
-def request_public_key(connection,public_key):
-    try:    
+
+def request_public_key(connection, public_key):
+    try:
         if public_key:
             # Send the public key to the client
             connection.send(public_key.save_pkcs1(format="PEM"))

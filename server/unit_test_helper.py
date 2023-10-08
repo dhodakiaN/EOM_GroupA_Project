@@ -1,7 +1,8 @@
 import unittest
 from unittest.mock import Mock, patch
 
-from helpers import decrypt_data  
+from helpers import decrypt_data
+
 
 class TestDecryptData(unittest.TestCase):
 
@@ -23,6 +24,7 @@ class TestDecryptData(unittest.TestCase):
         # Assert that the decrypted result matches the expected result
         expected_decrypted_data = b'decrypted_data'
         self.assertEqual(decrypted_result, expected_decrypted_data)
+
 
 if __name__ == '__main__':
     unittest.main()
