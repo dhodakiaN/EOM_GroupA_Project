@@ -5,6 +5,7 @@ import pickle
 import json
 import xml.etree.ElementTree as ET
 
+
 class TestPickling(unittest.TestCase):
     def setUp(self):
         self.test_directory = './client/assets/test/'
