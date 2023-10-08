@@ -66,8 +66,10 @@ If using a Windows OS:
 ```
 
 ## 📚 Features
+- [x] Populate Dictionairy
+- [x] Serialise into XML,Binary and Json Format
+- [x] Print to screen
 - [x] Upload files to the server
 - [x] Download files from the server
 - [X] Encrypt files before  uploading
-- [X] Decrypt files after downloading
 - [x] Authentication
