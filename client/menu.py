@@ -48,11 +48,13 @@ def launchMenu():
                     optionencrypt = input('What Would You Like To Do from the Above Options: ')
                     if optionencrypt == "1":
                         public_key = request_public_key_from_server(connection)
+                        print("this")
                         public_key = loadpublickey(public_key)
                         connection.close()
                         connection = create_connection()
                         encryptdata = True  # flag to encrypt data
                     elif optionencrypt == "2":
+                        public_key=0 #arbitary figure
                         encryptdata = False  # flag to keep data the same
                     print("Do you want the server to print or do you want to save the data in a file?")
                     print('1. Print the contents to a screen in the server')
@@ -83,7 +85,7 @@ def launchMenu():
                     print('3. XML')
                     optionpicklingformat = input('What Would You Like To Do from Above Options: ')
                     if optionpicklingformat == "1":
-                        file_path = pickling_Binary(userdictionary, dictfilename, encryptdata, public_key)
+                        file_path = pickling_Binary(userdictionary, dictfilename, encryptdata,public_key)
                         if send_file_to_server(connection, file_path):
                             success_message('File uploaded successfully')
                         else:
